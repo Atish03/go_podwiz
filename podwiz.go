@@ -32,7 +32,7 @@ type Socket struct {
 	Socket *net.Conn
 }
 
-func reader(r io.Reader) Received {
+func reader(r io.Reader) *Received {
     buf := make([]byte, 4096)
 	data := Received{}
 	n, err := r.Read(buf[:])
@@ -61,7 +61,7 @@ func Connect() *Socket {
 	return &sock
 }
 
-func (socket *Socket) send(out []byte) Received {
+func (socket *Socket) send(out []byte) *Received {
 	for {
         _, err := (*socket.Socket).Write(out)
         if err != nil {
