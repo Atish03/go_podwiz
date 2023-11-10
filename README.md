@@ -4,6 +4,8 @@ Go package for [podwiz](https://github.com/Atish03/podwiz)
 ## Usage
 You must run [podwiz_client](https://github.com/Atish03/podwiz/releases/tag/v0.0.1)  before connecting to it!
 
+**Make sure that the shell you ran podwiz_client into is pointing to the same docker-daemon as that of k8s**
+
 ```
 import "github.com/Atish03/podwiz"
 
@@ -19,7 +21,7 @@ func main() {
 
 `path` is path of a directory with Dockerfile and a pod.yaml file (see [chall-1](https://github.com/Atish03/podwiz/tree/main/chall-1))
 
-`imgName` name of the image to be used for shell (If image is not found, image is built using the Dockerfile in `path`(**Make sure that the shell is pointing to the same docker-daemon as that of k8s**))
+`imgName` name of the image to be used for shell (If image is not found, image is built using the Dockerfile in `path`)
 
 `timeToKill` is the amount of time (secs) after which you want to delete the shell
 
