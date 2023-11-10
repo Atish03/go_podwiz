@@ -46,7 +46,38 @@ func reader(r io.Reader) Received {
 		fmt.Println(string(buf[0:n]))
 	}
 
-	return data
+	if data.Command == "start" {
+		creds := Creds{}
+		err = json.Unmarshal(data.Data, &creds)
+		if err != nil {
+			fmt.Println("Server didnt send correct data!")
+		}
+		fmt.Printf("Username: %s\nPassword: %s\nPort: %d\n", creds.Username, creds.Password, creds.Port)
+		return creds
+	} else if data.Command == "list" {
+		schedules := []ScheduleInfo{}
+		err = json.Unmarshal(data.Data, &schedules)
+		if err != nil {
+			fmt.Println("Server didnt send correct data!")
+		}
+		toShow := [][]string{}
+		for i := 0; i < len(schedules); i++ {
+			toShow = append(toShow, []string{
+				schedules[i].Name,
+				schedules[i].PodName,
+				schedules[i].StartTime,
+				schedules[i].EndTime,
+			})
+		}
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Name", "Pod name", "Start", "Finish"})
+
+		for _, v := range toShow {
+			table.Append(v)
+		}
+		table.Render() 
+	}
 }
 
 func Connect() *Socket {
@@ -71,9 +102,9 @@ func (socket *Socket) send(out []byte) Received {
         }
     }
 
-	rData := reader(*(socket.Socket))
+	reader(*(socket.Socket))
 
-	return rData
+	return []byte("none")
 }
 
 func Start(name string, machineName string, path string, imgName string, time int, scheduleName string) []byte {
