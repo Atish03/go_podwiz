@@ -34,7 +34,7 @@ type Socket struct {
 	Socket *net.Conn
 }
 
-func reader(r io.Reader) {
+func reader(r io.Reader) Received {
     buf := make([]byte, 4096)
 	data := Received{}
 	n, err := r.Read(buf[:])
@@ -46,37 +46,7 @@ func reader(r io.Reader) {
 		fmt.Println(string(buf[0:n]))
 	}
 
-	if data.Command == "start" {
-		creds := Creds{}
-		err = json.Unmarshal(data.Data, &creds)
-		if err != nil {
-			fmt.Println("Server didnt send correct data!")
-		}
-		fmt.Printf("Username: %s\nPassword: %s\nPort: %d\n", creds.Username, creds.Password, creds.Port)
-	} else if data.Command == "list" {
-		schedules := []ScheduleInfo{}
-		err = json.Unmarshal(data.Data, &schedules)
-		if err != nil {
-			fmt.Println("Server didnt send correct data!")
-		}
-		toShow := [][]string{}
-		for i := 0; i < len(schedules); i++ {
-			toShow = append(toShow, []string{
-				schedules[i].Name,
-				schedules[i].PodName,
-				schedules[i].StartTime,
-				schedules[i].EndTime,
-			})
-		}
-
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Name", "Pod name", "Start", "Finish"})
-
-		for _, v := range toShow {
-			table.Append(v)
-		}
-		table.Render() 
-	}
+	return data
 }
 
 func Connect() *Socket {
@@ -93,7 +63,7 @@ func Connect() *Socket {
 	return &sock
 }
 
-func (socket *Socket) Send(out []byte) {
+func (socket *Socket) send(out []byte) Received {
 	for {
         _, err := (*socket.Socket).Write(out)
         if err != nil {
@@ -101,7 +71,9 @@ func (socket *Socket) Send(out []byte) {
         }
     }
 
-	reader(*(socket.Socket))
+	rData := reader(*(socket.Socket))
+
+	return rData
 }
 
 func Start(name string, machineName string, path string, imgName string, time int, scheduleName string) []byte {
@@ -127,7 +99,9 @@ func Start(name string, machineName string, path string, imgName string, time in
 		panic(err)
 	}
 
-	return out
+	data := send(out)
+
+	return data.Data
 }
 
 func List(scheduleName string) []byte {
@@ -143,5 +117,7 @@ func List(scheduleName string) []byte {
 		panic(err)
 	}
 
-	return out
+	data := send(out)
+
+	return data.Data
 }
