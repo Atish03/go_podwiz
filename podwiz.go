@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Atish03/podwiz/reqProto"
 	"net"
-	"io"
 	"google.golang.org/protobuf/proto"
 	"path/filepath"
 	"encoding/json"
@@ -56,7 +55,7 @@ func (socket *Socket) send(out []byte) []byte {
 
 	buf := make([]byte, 4096)
 	data := Received{}
-	n, err := r.Read(buf[:])
+	n, err := (*socket.Socket).Read(buf[:])
 	if err != nil {
 		return nil
 	}
