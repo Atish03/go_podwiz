@@ -8,8 +8,6 @@ import (
 	"google.golang.org/protobuf/proto"
 	"path/filepath"
 	"encoding/json"
-	"github.com/olekukonko/tablewriter"
-	"os"
 )
 
 type Creds struct {
@@ -39,7 +37,7 @@ func reader(r io.Reader) Received {
 	data := Received{}
 	n, err := r.Read(buf[:])
 	if err != nil {
-		return
+		return nil
 	}
 	err = json.Unmarshal(buf[0:n], &data)
 	if err != nil {
@@ -99,7 +97,7 @@ func (socket *Socket) Start(name string, machineName string, path string, imgNam
 		panic(err)
 	}
 
-	data := (*socket.Socket).send(out)
+	data := socket.send(out)
 
 	return data.Data
 }
@@ -117,7 +115,7 @@ func (socket *Socket) List(scheduleName string) []byte {
 		panic(err)
 	}
 
-	data := (*socket.Socket).send(out)
+	data := socket.send(out)
 
 	return data.Data
 }
