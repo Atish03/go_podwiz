@@ -99,7 +99,7 @@ func (socket *Socket) Start(name string, machineName string, path string, imgNam
 		panic(err)
 	}
 
-	data := (*socket.Socket)send(out)
+	data := (*socket.Socket).send(out)
 
 	return data.Data
 }
@@ -117,7 +117,7 @@ func (socket *Socket) List(scheduleName string) []byte {
 		panic(err)
 	}
 
-	data := (*socket.Socket)send(out)
+	data := (*socket.Socket).send(out)
 
 	return data.Data
 }
