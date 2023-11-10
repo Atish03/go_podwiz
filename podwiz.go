@@ -32,21 +32,6 @@ type Socket struct {
 	Socket *net.Conn
 }
 
-func reader(r io.Reader) *Received {
-    buf := make([]byte, 4096)
-	data := Received{}
-	n, err := r.Read(buf[:])
-	if err != nil {
-		return nil
-	}
-	err = json.Unmarshal(buf[0:n], &data)
-	if err != nil {
-		fmt.Println(string(buf[0:n]))
-	}
-
-	return data
-}
-
 func Connect() *Socket {
 	socket, err := net.Dial("unix", "/tmp/podwiz.sock")
 	if err != nil {
@@ -61,7 +46,7 @@ func Connect() *Socket {
 	return &sock
 }
 
-func (socket *Socket) send(out []byte) *Received {
+func (socket *Socket) send(out []byte) []byte {
 	for {
         _, err := (*socket.Socket).Write(out)
         if err != nil {
@@ -69,9 +54,18 @@ func (socket *Socket) send(out []byte) *Received {
         }
     }
 
-	rData := reader(*(socket.Socket))
+	buf := make([]byte, 4096)
+	data := Received{}
+	n, err := r.Read(buf[:])
+	if err != nil {
+		return nil
+	}
+	err = json.Unmarshal(buf[0:n], &data)
+	if err != nil {
+		return buf[0:n]
+	}
 
-	return rData
+	return data.Data
 }
 
 func (socket *Socket) Start(name string, machineName string, path string, imgName string, time int, scheduleName string) []byte {
@@ -97,9 +91,7 @@ func (socket *Socket) Start(name string, machineName string, path string, imgNam
 		panic(err)
 	}
 
-	data := socket.send(out)
-
-	return data.Data
+	return socket.send(out)
 }
 
 func (socket *Socket) List(scheduleName string) []byte {
@@ -115,7 +107,5 @@ func (socket *Socket) List(scheduleName string) []byte {
 		panic(err)
 	}
 
-	data := socket.send(out)
-
-	return data.Data
+	return socket.send(out)
 }
